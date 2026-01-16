@@ -305,7 +305,8 @@
             justify-content: center;
         }
         
-        .link-item a {
+        /* 软件名称按钮样式 */
+        .app-name-btn {
             display: block;
             padding: 12px 8px;
             background: rgba(255, 255, 255, 0.1);
@@ -324,47 +325,68 @@
             color: #fff;
             text-decoration: none;
             border: 1px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
         }
         
-        .link-item a:hover {
+        .app-name-btn:hover {
             background: rgba(255, 255, 255, 0.2);
             transform: translateY(-2px);
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
             border-color: rgba(255, 255, 255, 0.3);
         }
         
-        /* 音乐播放器 */
-        .music-player {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        /* 网盘链接容器样式 */
+        .pan-links {
+            display: none;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-top: 8px;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+        }
+        
+        .pan-links.show {
+            display: grid;
+        }
+        
+        .pan-link-btn {
+            padding: 8px 4px;
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 8px;
+            font-size: 12px;
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.15);
             cursor: pointer;
-            z-index: 100;
-            transition: all 0.4s ease;
-            opacity: 0.8;
+            transition: all 0.2s ease;
+            text-align: center;
         }
         
-        .music-player:hover {
-            transform: scale(1.1);
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
-            opacity: 1;
-            background: rgba(255, 255, 255, 0.25);
+        .pan-link-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
         }
         
-        .music-player i {
-            font-size: 20px;
-            color: #ffffff;
+        /* Toast提示样式 */
+        .toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            padding: 12px 24px;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            color: #fff;
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 9999;
+            transition: transform 0.3s ease;
+            pointer-events: none;
+        }
+        
+        .toast.show {
+            transform: translate(-50%, -50%) scale(1);
         }
         
         @media (max-width: 1024px) {
@@ -413,10 +435,14 @@
                 font-size: 16px;
             }
             
-            .link-item a {
+            .app-name-btn {
                 font-size: 13px;
                 padding: 10px 6px;
                 min-height: 40px;
+            }
+            
+            .pan-links {
+                grid-template-columns: repeat(2, 1fr);
             }
             
             .marquee-content {
@@ -458,6 +484,10 @@
             .link-item {
                 margin: 0;
             }
+            
+            .pan-links {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
     </style>
 </head>
@@ -491,8 +521,11 @@
     </audio>
 
     <div class="music-player" id="musicToggle">
-        <i class="fas fa-music"></i> <!-- 修复：初始图标统一为fa-music，避免状态错乱 -->
+        <i class="fas fa-music"></i>
     </div>
+
+    <!-- Toast提示容器 -->
+    <div class="toast" id="toast">链接复制成功！</div>
     
     <div class="container">
         <header>
@@ -515,38 +548,72 @@
             <div class="bookmark">
                 <div class="bookmark-description"> TVbox软件合辑{空壳子} </div>
                 <div class="bookmark-links">
-                    <!-- 修复：所有link-item都嵌套在link-row中 -->
                     <div class="link-row">
                         <div class="link-item">
-                            <a href="https://pan.quark.cn/s/1e246d09ac00?pwd=971Q">影视仓</a>
+                            <div class="app-name-btn" data-target="ysc-pan">影视仓</div>
+                            <div class="pan-links" id="ysc-pan">
+                                <div class="pan-link-btn" data-link="https://pan.quark.cn/s/1e246d09ac00?pwd=971Q">夸克</div>
+                                <div class="pan-link-btn" data-link="https://drive.uc.cn/s/7e80d2d5bcc34">UC</div>
+                                <div class="pan-link-btn" data-link="https://pan.baidu.com/s/1Qtd8zGEV-tNrKoFMfxmv9g?pwd=h7nm">百度</div>
+                                <div class="pan-link-btn" data-link="https://pan.xunlei.com/s/VO_AyMUYDjChF00mDL8I4nc0A1?pwd=pkhw">迅雷</div>
+                            </div>
                         </div>
                     </div>
                     <div class="link-row">
                         <div class="link-item">
-                            <a href="https://pan.quark.cn/s/c02c5f14c2f9?pwd=xduz">OK影视</a>
+                            <div class="app-name-btn" data-target="okys-pan">OK影视</div>
+                            <div class="pan-links" id="okys-pan">
+                                <div class="pan-link-btn" data-link="https://pan.quark.cn/s/c02c5f14c2f9?pwd=xduz">夸克</div>
+                                <div class="pan-link-btn" data-link="https://drive.uc.cn/s/42cea5d276fb4">UC</div>
+                                <div class="pan-link-btn" data-link="https://pan.baidu.com/s/1ttz6AUMcah72N-RuGzFL0w?pwd=vqjf">百度</div>
+                                <div class="pan-link-btn" data-link="https://pan.xunlei.com/s/VOZqiobJK5ycPvNBwhr-ndExA1?pwd=ahw3">迅雷</div>
+                            </div>
                         </div>
                     </div>
                     <div class="link-row">
                         <div class="link-item">
-                            <a href="https://pan.quark.cn/s/fd3995f5ff32?pwd=Je2v">FongMi影视</a>
+                            <div class="app-name-btn" data-target="fmys-pan">FongMi影视</div>
+                            <div class="pan-links" id="fmys-pan">
+                                <div class="pan-link-btn" data-link="https://pan.quark.cn/s/fd3995f5ff32?pwd=Je2v">夸克</div>
+                                <div class="pan-link-btn" data-link="https://drive.uc.cn/s/89c3f5d7e7b84">UC</div>
+                                <div class="pan-link-btn" data-link="https://pan.baidu.com/s/1-CG6_4skFqcBkxmNGQBbvA?pwd=b8vn">百度</div>
+                                <div class="pan-link-btn" data-link="https://pan.xunlei.com/s/VOZwm-wdJW13nOAW7XqM4DjSA1?pwd=aatu">迅雷</div>
+                            </div>
                         </div>
                     </div>
                     <div class="link-row">
                         <div class="link-item">
-                            <a href="https://pan.quark.cn/s/9a0d811e1ac1?pwd=1433">TVBOX</a>
+                            <div class="app-name-btn" data-target="tvbox-pan">TVBOX</div>
+                            <div class="pan-links" id="tvbox-pan">
+                                <div class="pan-link-btn" data-link="https://pan.quark.cn/s/9a0d811e1ac1?pwd=1433">夸克</div>
+                                <div class="pan-link-btn" data-link="https://drive.uc.cn/s/b7d5b217d42e4">UC</div>
+                                <div class="pan-link-btn" data-link="https://pan.baidu.com/s/1LVm3BOfUzi6oNYmkLUwSpw?pwd=ekp8">百度</div>
+                                <div class="pan-link-btn" data-link="https://pan.xunlei.com/s/VOblBbYLICxjQCn_JfOoGzoyA1?pwd=xer2">迅雷</div>
+                            </div>
                         </div>
                     </div>
                     <div class="link-row">
                         <div class="link-item">
-                            <a href="https://pan.quark.cn/s/4aacbcef844c?pwd=Tn5t">EasyBox</a>
+                            <div class="app-name-btn" data-target="ebox-pan">EasyBox</div>
+                            <div class="pan-links" id="ebox-pan">
+                                <div class="pan-link-btn" data-link="https://pan.quark.cn/s/4aacbcef844c?pwd=Tn5t">夸克</div>
+                                <div class="pan-link-btn" data-link="https://pan.baidu.com/s/1PUuzuOtQAxiIf_FKfjTa4A?pwd=x3wc">百度</div>
+                                <div class="pan-link-btn" data-link="https://pan.xunlei.com/s/VOZqoWBF21w48oG8GbbYlzCfA1?pwd=su9g">迅雷</div>
+                            </div>
                         </div>
                     </div>
                     <div class="link-row">
                         <div class="link-item">
-                            <a href="https://pan.quark.cn/s/1bea247bd114?pwd=kjeh">MediaMix</a>
+                            <div class="app-name-btn" data-target="mmix-pan">MediaMix</div>
+                            <div class="pan-links" id="mmix-pan">
+                                <div class="pan-link-btn" data-link="https://pan.quark.cn/s/1bea247bd114?pwd=kjeh">夸克</div>
+                                <div class="pan-link-btn" data-link="https://drive.uc.cn/s/d8180d91e6d94">UC</div>
+                                <div class="pan-link-btn" data-link="https://pan.baidu.com/s/1m09UJARXi3oCjmqVt66v0Q?pwd=ukuk">百度</div>
+                                <div class="pan-link-btn" data-link="https://pan.xunlei.com/s/VOZqoIzvTDbj0ddEDsxLkX2NA1?pwd=64ty">迅雷</div>
+                            </div>
                         </div>
                     </div>
-                </div> <!-- 修复：补全bookmark-links的闭合标签（原代码此处缺失） -->
+                </div>
             </div>
 
             
@@ -556,17 +623,35 @@
                 <div class="bookmark-links">
                     <div class="link-row">
                         <div class="link-item">
-                            <a href="https://pan.quark.cn/s/391540ec08e7?pwd=XwAP"> 酷9-TV </a>
+                            <div class="app-name-btn" data-target="k9tv-pan">酷9-TV</div>
+                            <div class="pan-links" id="k9tv-pan">
+                                <div class="pan-link-btn" data-link="https://pan.quark.cn/s/391540ec08e7?pwd=XwAP">夸克</div>
+                                <div class="pan-link-btn" data-link="https://drive.uc.cn/s/6738b6e1bab94">UC</div>
+                                <div class="pan-link-btn" data-link="https://pan.baidu.com/s/1oc3aXvrj4SlUUGulXcSbng?pwd=axah">百度</div>
+                                <div class="pan-link-btn" data-link="https://pan.xunlei.com/s/VO_BimfKIWBTUoMvhpDAqnClA1?pwd=5c6q">迅雷</div>
+                            </div>
                         </div>
                     </div>
                     <div class="link-row">
                         <div class="link-item">
-                            <a href="https://drive.uc.cn/s/6738b6e1bab94"> 云影空蒙 </a>
+                            <div class="app-name-btn" data-target="yykm-pan">云影空蒙</div>
+                            <div class="pan-links" id="yykm-pan">
+                                <div class="pan-link-btn" data-link="https://pan.quark.cn/s/391540ec08e7?pwd=XwAP">夸克</div>
+                                <div class="pan-link-btn" data-link="https://drive.uc.cn/s/6738b6e1bab94">UC</div>
+                                <div class="pan-link-btn" data-link="https://pan.baidu.com/s/1oc3aXvrj4SlUUGulXcSbng?pwd=axah">百度</div>
+                                <div class="pan-link-btn" data-link="https://pan.xunlei.com/s/VO_BimfKIWBTUoMvhpDAqnClA1?pwd=5c6q">迅雷</div>
+                            </div>
                         </div>
                     </div>
                     <div class="link-row">
                         <div class="link-item">
-                            <a href="https://pan.xunlei.com/s/VO_BimfKIWBTUoMvhpDAqnClA1?pwd=5c6q"> 天光云影 </a>
+                            <div class="app-name-btn" data-target="tgyy-pan">天光云影</div>
+                            <div class="pan-links" id="tgyy-pan">
+                                <div class="pan-link-btn" data-link="https://pan.quark.cn/s/391540ec08e7?pwd=XwAP">夸克</div>
+                                <div class="pan-link-btn" data-link="https://drive.uc.cn/s/6738b6e1bab94">UC</div>
+                                <div class="pan-link-btn" data-link="https://pan.baidu.com/s/1oc3aXvrj4SlUUGulXcSbng?pwd=axah">百度</div>
+                                <div class="pan-link-btn" data-link="https://pan.xunlei.com/s/VO_BimfKIWBTUoMvhpDAqnClA1?pwd=5c6q">迅雷</div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -574,71 +659,123 @@
 
             <!-- index.js.md5软件合辑{空壳子}-->
             <div class="bookmark">
-                <div class="bookmark-description"> index.js.md5软件合辑{空壳子} </div>
+                <div class="bookmark-description"> 猫源软件合辑{空壳子} </div>
                 <div class="bookmark-links">
                     <div class="link-row">
                         <div class="link-item">
-                            <a href="https://pan.quark.cn/s/5f96304d744c?pwd=rriE"> Peekpili </a>
+                            <div class="app-name-btn" data-target="pkpl-pan">Peekpili</div>
+                            <div class="pan-links" id="pkpl-pan">
+                                <div class="pan-link-btn" data-link="https://pan.quark.cn/s/5f96304d744c?pwd=rriE">夸克</div>
+                                <div class="pan-link-btn" data-link="https://drive.uc.cn/s/ad616adf97404">UC</div>
+                                <div class="pan-link-btn" data-link="https://pan.baidu.com/s/1Kl0ZqTIWjWngcDBJoeOZrg?pwd=3kn2">百度</div>
+                                <div class="pan-link-btn" data-link="https://pan.xunlei.com/s/VOhsT9FDk4Ylp9535Lk0N9FdA1?pwd=dj6b#">迅雷</div>
+                            </div>
                         </div>
                     </div>
                     <div class="link-row">
                         <div class="link-item">
-                            <a href="https://pan.quark.cn/s/fd76e98e90e7?pwd=sAzC"> 蚂蚁影视 </a>
+                            <div class="app-name-btn" data-target="mays-pan">蚂蚁影视</div>
+                            <div class="pan-links" id="mays-pan">
+                                <div class="pan-link-btn" data-link="https://pan.quark.cn/s/fd76e98e90e7?pwd=sAzC">夸克</div>
+                                <div class="pan-link-btn" data-link="https://drive.uc.cn/s/bb3e7df7b0b44">UC</div>
+                                <div class="pan-link-btn" data-link="https://pan.baidu.com/s/1KQ4NEeOk5JCL4Cxw5bPmXg?pwd=bjpp">百度</div>
+                                <div class="pan-link-btn" data-link="https://pan.xunlei.com/s/VOhEUgUtIbNl2XdQWcDaYZf-A1?pwd=su5s">迅雷</div>
+                            </div>
                         </div>
                     </div>
                     <div class="link-row">
                         <div class="link-item">
-                            <!-- 修复：链接多余的h前缀 -->
-                            <a href="https://pan.quark.cn/s/3f44b4babd08?pwd=9mVB"> 猫爪 </a>
+                            <div class="app-name-btn" data-target="mz-pan">猫爪</div>
+                            <div class="pan-links" id="mz-pan">
+                                <div class="pan-link-btn" data-link="https://pan.quark.cn/s/3f44b4babd08?pwd=9mVB">夸克</div>
+                                <div class="pan-link-btn" data-link="https://pan.baidu.com/s/1muxYqziPaM5E0pH4ZB-WBg?pwd=xq1v">百度</div>
+                                <div class="pan-link-btn" data-link="https://pan.xunlei.com/s/VOZqnyiM1LXA79XdVikpeAKxA1?pwd=qjq3">迅雷</div>
+                            </div>
                         </div>
                     </div>
 					<div class="link-row">
                         <div class="link-item">
-                            <a href="https://pan.quark.cn/s/8fbae0a50852?pwd=m3zA"> UZ影视 </a>
+                            <div class="app-name-btn" data-target="uzys-pan">UZ影视</div>
+                            <div class="pan-links" id="uzys-pan">
+                                <div class="pan-link-btn" data-link="https://pan.quark.cn/s/8fbae0a50852?pwd=m3zA">夸克</div>
+                                <div class="pan-link-btn" data-link="https://drive.uc.cn/s/45b58e58e77b4">UC</div>
+                                <div class="pan-link-btn" data-link="https://pan.baidu.com/s/1zjXYNDOj4DQsQMbgQ9d41w?pwd=idzg">百度</div>
+                                <div class="pan-link-btn" data-link="https://pan.xunlei.com/s/VOZqopcmqOWaEOISMIErponFA1?pwd=sruk">迅雷</div>
+                            </div>
                         </div>
                     </div>
                     <div class="link-row">
                         <div class="link-item">
-                            <a href="https://apps.apple.com/us/app/miraplay/id6749287494?l=zh-Hans-CN"> MiraPlay </a>
+                            <div class="app-name-btn" data-target="mira-pan">MiraPlay</div>
+                            <div class="pan-links" id="mira-pan">
+                                <div class="pan-link-btn" data-link="https://apps.apple.com/us/app/miraplay/id6749287494?l=zh-Hans-CN">AppStore</div>
+                            </div>
                         </div>
                     </div>
                     <div class="link-row">
                         <div class="link-item">
-                            <a href="https://testflight.apple.com/join/ywzcMKS3">魔力云播 </a>
+                            <div class="app-name-btn" data-target="mlyb-pan">魔力云播</div>
+                            <div class="pan-links" id="mlyb-pan">
+                                <div class="pan-link-btn" data-link="https://testflight.apple.com/join/ywzcMKS3">TestFlight</div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
             
-            <!-- UZ影视专区{空壳子} -->
+            <!-- 其他软件专区 -->
             <div class="bookmark">
-                <!-- 修复：多余的}符号 -->
-                <div class="bookmark-description">其他软件专区</div>
+                <div class="bookmark-description">其他软件合集</div>
                 <div class="bookmark-links">
                     <div class="link-row">
                         <div class="link-item">
-                            <a href="https://pan.quark.cn/s/a96be1c53685?pwd=5b2N"> 甲壳虫adb助手 </a>
+                            <div class="app-name-btn" data-target="jkcadb-pan">甲壳虫adb助手</div>
+                            <div class="pan-links" id="jkcadb-pan">
+                                <div class="pan-link-btn" data-link="https://pan.quark.cn/s/a96be1c53685?pwd=5b2N">夸克</div>
+                                <div class="pan-link-btn" data-link="https://drive.uc.cn/s/e6286fc17af84">UC</div>
+                                <div class="pan-link-btn" data-link="https://pan.baidu.com/s/1FTd0sdGNU0Yn8DnSASV7kQ?pwd=duwg">百度</div>
+                                <div class="pan-link-btn" data-link="https://pan.xunlei.com/s/VO_B1yGY7eOeDwHFnqua8-x-A1?pwd=fhkv">迅雷</div>
+                            </div>
                         </div>
                     </div>
                   <div class="link-row">
                         <div class="link-item">
-                            <a href="https://pan.quark.cn/s/8ef0fc394a52?pwd=c9R8"> 纯粹直播 </a>
+                            <div class="app-name-btn" data-target="cczb-pan">纯粹直播</div>
+                            <div class="pan-links" id="cczb-pan">
+                                <div class="pan-link-btn" data-link="https://pan.quark.cn/s/8ef0fc394a52?pwd=c9R8">夸克</div>
+                                <div class="pan-link-btn" data-link="https://drive.uc.cn/s/2af28c5892364">UC</div>
+                                <div class="pan-link-btn" data-link="https://pan.baidu.com/s/1N35XkiUpOEK-gk6nrwrjHA?pwd=v3wp">百度</div>
+                                <div class="pan-link-btn" data-link="https://pan.xunlei.com/s/VOhIC4nYvXMR5QtgTTAbItkWA1?pwd=aidz">迅雷</div>
+                            </div>
                         </div>
                     </div>
                     <div class="link-row">
                         <div class="link-item">
-                            <a href="https://pan.quark.cn/s/ba0ff0d1e751?pwd=VnrU"> FUSE </a>
+                            <div class="app-name-btn" data-target="fuse-pan">FUSE</div>
+                            <div class="pan-links" id="fuse-pan">
+                                <div class="pan-link-btn" data-link="https://pan.quark.cn/s/ba0ff0d1e751?pwd=VnrU">夸克</div>
+                                <div class="pan-link-btn" data-link="https://drive.uc.cn/s/a9b301e2714c4">UC</div>
+                            </div>
                         </div>
                     </div>
                     <div class="link-row">
                         <div class="link-item">
-                            <a href="https://pan.quark.cn/s/f1ca3034b516?pwd=uT6V"> iBox </a>
+                            <div class="app-name-btn" data-target="ibox-pan">iBox</div>
+                            <div class="pan-links" id="ibox-pan">
+                                <div class="pan-link-btn" data-link="https://pan.quark.cn/s/f1ca3034b516?pwd=uT6V">夸克</div>
+                                <div class="pan-link-btn" data-link="https://drive.uc.cn/s/c1812051483f4">UC</div>
+                                <div class="pan-link-btn" data-link="https://pan.baidu.com/s/1G8Le8PuOWBJs2Fc6T5kP3g?pwd=kpk6">百度</div>
+                                <div class="pan-link-btn" data-link="https://pan.xunlei.com/s/VOZqmuUuesOW9nNgcKlaGgaJA1?pwd=hmsx">迅雷</div>
+                            </div>
                         </div>
                     </div>
                     <div class="link-row">
                         <div class="link-item">
-                            <a href="https://pan.quark.cn/s/856f20347c52?pwd=KrUY"> 破解apk </a>
+                            <div class="app-name-btn" data-target="apk-pan">破解apk</div>
+                            <div class="pan-links" id="apk-pan">
+                                <div class="pan-link-btn" data-link="https://pan.quark.cn/s/856f20347c52?pwd=KrUY">夸克</div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -706,6 +843,63 @@
             const marqueeContent = document.querySelector('.marquee-content');
             const clone = marqueeContent.cloneNode(true);
             marquee.appendChild(clone);
+
+            // ========== 新增功能：网盘链接展开/复制/Toast提示 ==========
+            const toast = document.getElementById('toast');
+            let currentOpenPan = null;
+
+            // 1. 软件名称点击 - 展开/收起网盘链接
+            const appNameBtns = document.querySelectorAll('.app-name-btn');
+            appNameBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const targetId = this.getAttribute('data-target');
+                    const panLinks = document.getElementById(targetId);
+
+                    // 关闭其他已展开的网盘链接
+                    if (currentOpenPan && currentOpenPan !== panLinks) {
+                        currentOpenPan.classList.remove('show');
+                    }
+
+                    // 切换当前网盘链接的显示状态
+                    panLinks.classList.toggle('show');
+                    currentOpenPan = panLinks.classList.contains('show') ? panLinks : null;
+                });
+            });
+
+            // 2. 复制链接功能
+            const panLinkBtns = document.querySelectorAll('.pan-link-btn');
+            panLinkBtns.forEach(btn => {
+                btn.addEventListener('click', async function() {
+                    const link = this.getAttribute('data-link');
+                    try {
+                        // 复制到剪贴板
+                        await navigator.clipboard.writeText(link);
+                        // 显示Toast提示
+                        toast.classList.add('show');
+                        setTimeout(() => {
+                            toast.classList.remove('show');
+                        }, 1500);
+                    } catch (err) {
+                        console.error('复制失败:', err);
+                        toast.textContent = '复制失败，请手动复制！';
+                        toast.classList.add('show');
+                        setTimeout(() => {
+                            toast.textContent = '链接复制成功！';
+                            toast.classList.remove('show');
+                        }, 1500);
+                    }
+                });
+            });
+
+            // 3. 点击空白处关闭网盘链接
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.link-item')) {
+                    if (currentOpenPan) {
+                        currentOpenPan.classList.remove('show');
+                        currentOpenPan = null;
+                    }
+                }
+            });
         });
     </script>
 </body>
